@@ -1,0 +1,26 @@
+{
+  "name": "go-it-node.js-homeworks",
+  "version": "1.0.0",
+  "description": "Homework_01",
+  "main": "index.js",
+  "dependencies": {
+    "nodemon": "^2.0.3",
+    "yargs": "^15.3.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/khoroshkov/Go-It-Node.js-homeworks.git"
+  },
+  "author": "Nick Khoroshkov",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/khoroshkov/Go-It-Node.js-homeworks/issues"
+  },
+  "homepage": "https://github.com/khoroshkov/Go-It-Node.js-homeworks#readme"
+}
