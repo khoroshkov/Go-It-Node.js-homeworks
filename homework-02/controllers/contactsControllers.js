@@ -1,19 +1,26 @@
 const fs = require("fs");
 const path = require("path");
+const Joi = require("@hapi/joi");
 
 const contactsDB = path.join(__dirname, "../db/contacts.json");
 
-// const contacts = fs.readFileSync(contactsDB, "utf-8");
-// const contactsArr = JSON.parse(contacts);
+const getContactsArr = () => JSON.parse(fs.readFileSync(contactsDB, "utf-8"));
+
+const contactsInfoSchema = Joi.object({
+  name: Joi.string().required(),
+  email: Joi.string().required(),
+  phone: Joi.string().required(),
+});
 
 function listContacts(req, res) {
-  const contacts = fs.readFileSync(contactsDB, "utf-8");
-  const contactsArr = JSON.parse(contacts);
+  const contactsArr = getContactsArr();
 
   res.status(200).send(contactsArr);
 }
 
 function getContactById(req, res) {
+  const contactsArr = getContactsArr();
+
   let contactFound = contactsArr.find(
     (contact) => contact.id === Number(req.params.id)
   );
@@ -28,7 +35,9 @@ function newContactPost(req, res) {
   const { name, email, phone } = req.body;
   const errorMessage = { message: "missing required fields" };
 
-  if (!name || !email || !phone) {
+  const validationResult = contactsInfoSchema.validate(req.body);
+
+  if (validationResult.error) {
     return res.status(400).send(errorMessage);
   } else {
     let newContact = {
@@ -38,8 +47,7 @@ function newContactPost(req, res) {
       phone,
     };
 
-    const contacts = fs.readFileSync(contactsDB, "utf-8");
-    const contactsArr = JSON.parse(contacts);
+    const contactsArr = getContactsArr();
 
     const updatedContacts = JSON.stringify([...contactsArr, newContact]);
 
@@ -54,7 +62,7 @@ function removeContact(req, res) {
   const deletedMessage = { message: "contact deleted" };
   const notFoundMessage = { message: "Contact not found" };
 
-  const contactsArr = JSON.parse(fs.readFileSync(contactsDB, "utf-8"));
+  const contactsArr = getContactsArr();
 
   const matchContact = contactsArr.find(
     (contact) => contact.id === Number(req.params.id)
@@ -73,27 +81,29 @@ function removeContact(req, res) {
   }
 }
 
-function updateContact(req, res) {
-  const { name, email, phone } = req.body;
+async function updateContact(req, res) {
   const errorMessage = { message: "missing required fields" };
 
-  if (!name || !email || !phone) {
+  const result = contactsInfoSchema.validate(req.body);
+
+  if (result.error) {
     return res.status(400).send(errorMessage);
   } else {
-    const contactsArr = JSON.parse(fs.readFileSync(contactsDB, "utf-8"));
-    const contact = contactsArr.find(
-      (contact) => contact.id === Number(req.params.id)
+    const contactsArr = await JSON.parse(fs.readFileSync(contactsDB, "utf-8"));
+    const contacts = contactsArr.filter(
+      (contact) => contact.id !== Number(req.params.id)
     );
-    contact.id;
-    contact.name = name;
-    contact.email = email;
-    contact.phone = phone;
 
-    const updatedContacts = JSON.stringify([...contactsArr, contact]);
+    const updatedContact = {
+      id: +req.params.id,
+      ...req.body,
+    };
+
+    const updatedContacts = JSON.stringify([...contacts, updatedContact]);
 
     fs.writeFile(contactsDB, updatedContacts, function (err) {
       if (err) return res.send(err);
-      res.status(200).send(contact);
+      res.status(200).send(updatedContact);
     });
   }
 }
