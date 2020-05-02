@@ -6,7 +6,10 @@
   "dependencies": {
     "@hapi/joi": "^17.1.1",
     "cors": "^2.8.5",
+    "dotenv": "^8.2.0",
     "express": "^4.17.1",
+    "mongodb": "^3.5.7",
+    "mongoose": "^5.9.11",
     "morgan": "^1.10.0",
     "nodemon": "^2.0.3",
     "yargs": "^15.3.1"
@@ -14,8 +17,8 @@
   "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node ./homework-02/index.js",
-    "dev": "nodemon ./homework-02/index.js"
+    "start": "node ./homework-03-mongodb/index.js",
+    "dev": "nodemon ./homework-03-mongodb/index.js"
   },
   "repository": {
     "type": "git",
