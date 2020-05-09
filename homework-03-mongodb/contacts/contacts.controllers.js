@@ -12,6 +12,13 @@ const contactsInfoSchema = Joi.object({
 
 async function getAllContacts(req, res) {
   try {
+    // if (req.query) {
+    //   console.log("req:", req.query.sub);
+      
+    //   const contacts = await contactModel.find({ subscription: req.query.sub });
+    //   return res.status("200").json(contacts);
+    // }
+
     const contacts = await contactModel.find();
 
     return res.status("200").json(contacts);
