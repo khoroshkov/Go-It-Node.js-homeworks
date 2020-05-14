@@ -5,6 +5,7 @@ const morgan = require("morgan");
 require("dotenv").config();
 
 const contactRouters = require("./contacts/contacts.router");
+const userRouters = require("../homework-04-auth/users/userRouters");
 
 const app = express();
 
@@ -13,7 +14,11 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan("combined"));
 
+app.use(express.static("public"));
+
 app.use("/contacts", contactRouters);
+app.use("/auth", userRouters);
+app.use("/users", userRouters);
 
 async function startServer() {
   try {
@@ -26,7 +31,7 @@ async function startServer() {
 
     app.listen(process.env.PORT, (err) => {
       if (err) throw err;
-      console.log("Your app is running on port: " + process.env.PORT);
+      console.log("Your Contacts app is running on port: " + process.env.PORT);
     });
   } catch (err) {
     console.log(err);
