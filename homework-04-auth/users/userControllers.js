@@ -2,19 +2,34 @@ const userModel = require("./userModel");
 const bcrypt = require("bcrypt");
 const Joi = require("@hapi/joi");
 const jwt = require("jsonwebtoken");
+const Avatar = require("avatar-builder");
+const fs = require("fs");
+
+const avatar = Avatar.male8bitBuilder(128);
 
 const saltRounds = 10;
-
-//require("dotenv").config();
 
 async function registerNewUser(req, res) {
   try {
     const { password, email } = req.body;
     const passwordHash = await bcrypt.hash(password, saltRounds);
 
+    avatar.create("gabriel").then((buffer) => {
+      fs.writeFileSync("./temp/gabriel-avatar.png", buffer);
+    });
+
+    const oldPath = "./temp/gabriel-avatar.png";
+    const newPath = "./public/images/gabriel-avatar_" + Date.now() + ".png";
+
+    fs.rename(oldPath, newPath, function (err) {
+      if (err) throw err;
+      console.log("File moved!");
+    });
+
     const user = await userModel.create({
       email,
       password: passwordHash,
+      avatarURL: newPath,
     });
     return res.status(201).json({
       email: user.email,
@@ -105,7 +120,7 @@ async function authorize(req, res, next) {
     req.user = user;
     req.token = token;
 
-    next();
+    next(req.user);
   } catch (err) {
     return res.status(500).send({ message: "Something went wrong" });
   }
@@ -125,6 +140,20 @@ function checkRegistrationFields(req, res, next) {
   next();
 }
 
+async function updateAvatar(req, res, next) {
+  const authorizationHeader = req.get("Authorization");
+  const token = authorizationHeader.replace("Bearer ", "");
+
+  try {
+    const userId = await jwt.verify(token, process.env.JWT_SECRET).id;
+    await userModel.findByIdAndUpdate(userId, { avatarURL: req.file.path });
+
+    return res.status(200).send({ avatarURL: req.file.path });
+  } catch (error) {
+    return res.status(401).send(error.message);
+  }
+}
+
 module.exports = {
   registerNewUser,
   login,
@@ -132,4 +161,5 @@ module.exports = {
   getCurrentUser,
   authorize,
   checkRegistrationFields,
+  updateAvatar,
 };
