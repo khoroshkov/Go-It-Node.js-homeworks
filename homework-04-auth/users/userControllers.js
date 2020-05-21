@@ -4,6 +4,10 @@ const Joi = require("@hapi/joi");
 const jwt = require("jsonwebtoken");
 const Avatar = require("avatar-builder");
 const fs = require("fs");
+const { v4: uuidv4 } = require("uuid");
+const {
+  sendVerificationEmail,
+} = require("../../homework-06-email/mailExample");
 
 const avatar = Avatar.male8bitBuilder(128);
 
@@ -15,10 +19,13 @@ async function registerNewUser(req, res) {
     const passwordHash = await bcrypt.hash(password, saltRounds);
 
     avatar.create("gabriel").then((buffer) => {
-      fs.writeFileSync("./temp/gabriel-avatar.png", buffer);
+      fs.writeFileSync(
+        "./public/images/gabriel-avatar_" + Date.now() + ".png",
+        buffer
+      );
     });
 
-    const oldPath = "./temp/gabriel-avatar.png";
+    const oldPath = "./temp/";
     const newPath = "./public/images/gabriel-avatar_" + Date.now() + ".png";
 
     fs.rename(oldPath, newPath, function (err) {
@@ -30,7 +37,11 @@ async function registerNewUser(req, res) {
       email,
       password: passwordHash,
       avatarURL: newPath,
+      verificationToken: uuidv4(),
     });
+
+    await sendVerificationEmail(user.email, user.verificationToken);
+
     return res.status(201).json({
       email: user.email,
       subscription: user.subscription,
@@ -154,6 +165,25 @@ async function updateAvatar(req, res, next) {
   }
 }
 
+async function checkVerificationToken(req, res, next) {
+  const { verificationToken } = req.params;
+
+  try {
+    const user = await userModel.findOneAndUpdate(
+      { verificationToken },
+      { verificationToken: null }
+    );
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    return res.status(200).json({ message: "Verification completed" });
+    
+  } catch (error) {
+    return res.status(500).send(error.message);
+  }
+}
+
 module.exports = {
   registerNewUser,
   login,
@@ -162,4 +192,5 @@ module.exports = {
   authorize,
   checkRegistrationFields,
   updateAvatar,
+  checkVerificationToken,
 };

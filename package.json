@@ -5,6 +5,7 @@
   "main": "index.js",
   "dependencies": {
     "@hapi/joi": "^17.1.1",
+    "@sendgrid/mail": "^7.1.1",
     "avatar-builder": "^1.0.1",
     "bcrypt": "^4.0.1",
     "cors": "^2.8.5",
@@ -21,11 +22,12 @@
     "morgan": "^1.10.0",
     "multer": "^1.4.2",
     "nodemon": "^2.0.3",
+    "uuid": "^8.1.0",
     "yargs": "^15.3.1"
   },
   "devDependencies": {},
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "node ./homework-06-email/mailExample.js",
     "start": "node ./homework-03-mongodb/index.js",
     "dev": "nodemon ./homework-03-mongodb/index.js"
   },

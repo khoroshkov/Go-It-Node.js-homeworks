@@ -2,7 +2,7 @@ const express = require("express");
 const userRouters = express.Router();
 const multer = require("multer");
 const path = require("path");
-//const fs = require("fs");
+
 
 const { minifyImage } = require("../../homework-05-images/imgMinify");
 
@@ -25,6 +25,7 @@ const {
   authorize,
   checkRegistrationFields,
   updateAvatar,
+  checkVerificationToken,
 } = require("./userControllers");
 
 userRouters.post("/register", checkRegistrationFields, registerNewUser);
@@ -48,5 +49,7 @@ userRouters.patch(
     res.status(200).send({ message: "Avatar successfully updated" });
   }
 );
+
+userRouters.get("/verify/:verificationToken", checkVerificationToken)
 
 module.exports = userRouters;
